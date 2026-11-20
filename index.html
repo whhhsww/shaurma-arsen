@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Шаурма у Арсена</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14100c;
+    --bg-2: #1e1812;
+    --card: #241c15;
+    --line: #3a2e22;
+    --text: #f6ece0;
+    --muted: #bfae98;
+    --fire: #ff6a1a;
+    --fire-2: #ffb03b;
+    --green: #7fbf4d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Manrope", system-ui, sans-serif;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 16px; }
+
+  /* ---------- Шапка ---------- */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(20, 16, 12, .85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { font-family: "Russo One", sans-serif; font-size: 22px; letter-spacing: .5px; }
+  .logo span { color: var(--fire); }
+  nav { display: flex; gap: 24px; font-weight: 600; color: var(--muted); }
+  nav a:hover { color: var(--fire-2); }
+  header .wrap { gap: 20px; }
+  nav { margin-left: auto; }
+  .lang { display: flex; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 3px; flex-shrink: 0; }
+  .lang button {
+    border: 0; background: transparent; color: var(--muted); cursor: pointer;
+    font: 800 13px "Manrope", sans-serif; padding: 6px 10px; border-radius: 7px;
+  }
+  .lang button.active { background: var(--fire); color: #1a0f05; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 56px 0 72px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; }
+  .hero h1 {
+    font-family: "Russo One", sans-serif;
+    font-size: clamp(38px, 6vw, 68px);
+    line-height: 1.05;
+    margin-bottom: 20px;
+  }
+  .hero h1 em { font-style: normal; color: var(--fire); }
+  .hero p { color: var(--muted); font-size: 18px; max-width: 460px; margin-bottom: 32px; }
+  .btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--fire), var(--fire-2));
+    color: #1a0f05; font-weight: 800; font-size: 17px;
+    padding: 16px 32px; border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(255, 106, 26, .35);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(255, 106, 26, .5); }
+
+  /* Анимация шаурмы: проявляется сверху вниз */
+  .shaurma-box { justify-self: center; width: 100%; max-width: 512px; }
+  .shaurma {
+    position: relative;
+    width: 100%;
+    border-radius: 28px;
+    overflow: hidden;
+    aspect-ratio: 736 / 920;
+    max-height: 640px;
+    justify-self: center;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
+    clip-path: inset(0 0 100% 0 round 28px);
+    transition: clip-path 2.8s cubic-bezier(.65, 0, .25, 1);
+  }
+  .shaurma img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transform: scale(1.15) translateY(-6%);
+    transition: transform 3.6s cubic-bezier(.2, .7, .2, 1);
+  }
+  /* светящаяся полоса, которая «едет» вниз вместе с открытием */
+  .shaurma::after {
+    content: "";
+    position: absolute; left: 0; right: 0; top: 0; height: 6px;
+    background: linear-gradient(90deg, transparent, var(--fire-2), var(--fire), var(--fire-2), transparent);
+    box-shadow: 0 0 24px 6px rgba(255, 140, 40, .7);
+    opacity: 0;
+  }
+  .shaurma.is-visible { clip-path: inset(0 0 0% 0 round 28px); }
+  .shaurma.is-visible img { transform: scale(1) translateY(0); }
+  .shaurma.is-visible::after { animation: scan 2.8s cubic-bezier(.65, 0, .25, 1) forwards; }
+  @keyframes scan {
+    0%   { top: 0; opacity: 1; }
+    90%  { top: calc(100% - 6px); opacity: 1; }
+    100% { top: calc(100% - 6px); opacity: 0; }
+  }
+
+  /* ---------- Секции ---------- */
+  section.block { padding: 72px 0; }
+  section.block.alt { background: var(--bg-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .title {
+    font-family: "Russo One", sans-serif;
+    font-size: clamp(30px, 4.5vw, 44px);
+    margin-bottom: 8px;
+  }
+  .subtitle { color: var(--muted); margin-bottom: 40px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 28px 24px 24px;
+    display: flex; flex-direction: column;
+    transition: transform .25s, border-color .25s;
+  }
+  .card .tag { position: absolute; top: 14px; right: 14px; background: rgba(20,16,12,.85); }
+  .add {
+    border: 0; cursor: pointer;
+    background: linear-gradient(135deg, var(--fire), var(--fire-2));
+    color: #1a0f05; font: 800 15px "Manrope", sans-serif;
+    padding: 12px 18px; border-radius: 12px;
+    transition: transform .15s, filter .15s;
+  }
+  .add:hover { filter: brightness(1.1); }
+  .add:active { transform: scale(.94); }
+  .card:hover { transform: translateY(-4px); border-color: var(--fire); }
+  .card { overflow: hidden; padding-top: 0; }
+  .photo {
+    margin: 0 -24px 20px; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg);
+  }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s; }
+  .card:hover .photo img { transform: scale(1.06); }
+  .card h3 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .card .desc { color: var(--muted); font-size: 15px; margin-bottom: 20px; flex: 1; }
+
+  .sizes { display: flex; gap: 6px; background: var(--bg); border-radius: 12px; padding: 4px; margin-bottom: 20px; }
+  .sizes button {
+    flex: 1; border: 0; background: transparent; color: var(--muted);
+    font: 600 14px "Manrope", sans-serif;
+    padding: 10px 4px; border-radius: 9px; cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .sizes button small { display: block; font-size: 11px; font-weight: 400; opacity: .8; }
+  .sizes button.active { background: var(--fire); color: #1a0f05; }
+
+  .price-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .price { font-family: "Russo One", sans-serif; font-size: 34px; color: var(--fire-2); }
+  .price .rub { font-size: 20px; margin-left: 6px; }
+
+  /* соусы */
+  .sauces { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .sauce {
+    display: flex; align-items: center; gap: 14px; width: 100%;
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    padding: 16px 18px; cursor: pointer; text-align: left;
+    color: var(--text); font-family: inherit;
+  }
+  .sauce:hover { border-color: var(--fire); }
+  .sauce:active { transform: scale(.97); }
+  .sauce .plus {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: grid; place-items: center;
+    background: var(--fire); color: #1a0f05; font-weight: 800; font-size: 18px;
+  }
+  .sauce .dot { width: 64px; height: 64px; border-radius: 14px; flex-shrink: 0; object-fit: cover; }
+  .sauces { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+  .sauce .dot[src*="s-ketchup"] { object-position: 12% 25%; }
+  .sauce { padding: 12px 14px 12px 12px; }
+  .sauce h4 { font-size: 16px; font-weight: 800; }
+  .sauce p { font-size: 13px; color: var(--muted); }
+  .sauce .sp { margin-left: auto; font-family: "Russo One", sans-serif; color: var(--fire-2); white-space: nowrap; }
+  .note { color: var(--muted); font-size: 14px; margin-top: 20px; }
+  .tag { font-size: 12px; font-weight: 800; color: var(--green); border: 1px solid var(--green); border-radius: 999px; padding: 3px 10px; }
+
+  /* таблица цен по размерам */
+  .table-wrap { margin-top: 48px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 480px; }
+  th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 14px; }
+  td:not(:first-child), th:not(:first-child) { text-align: right; }
+  td b { color: var(--fire-2); }
+
+  /* появление карточек при прокрутке */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .7s, transform .7s, border-color .25s; }
+  .reveal.is-visible { opacity: 1; transform: none; }
+  .reveal.is-visible.done { transition: transform .25s, border-color .25s; transition-delay: 0s !important; }
+  .card.is-visible:hover { transform: translateY(-4px); }
+  .sauce.is-visible:active { transform: scale(.97); }
+
+  /* ---------- Корзина ---------- */
+  .cart-bar {
+    position: fixed; left: 50%; bottom: 20px; z-index: 20;
+    transform: translate(-50%, 140%);
+    display: flex; align-items: center; gap: 16px;
+    background: var(--fire); color: #1a0f05;
+    padding: 12px 14px 12px 22px; border-radius: 999px; border: 0; cursor: pointer;
+    font: 800 16px "Manrope", sans-serif;
+    box-shadow: 0 14px 40px rgba(0,0,0,.5);
+    transition: transform .35s cubic-bezier(.2,.8,.2,1);
+    max-width: calc(100% - 32px); white-space: nowrap;
+  }
+  .cart-bar.show { transform: translate(-50%, 0); }
+  .cart-bar .open { background: #1a0f05; color: var(--fire-2); padding: 8px 16px; border-radius: 999px; }
+  .cart-bar.bump { animation: bump .35s; }
+  @keyframes bump { 50% { transform: translate(-50%, 0) scale(1.08); } }
+
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 30; opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+  .cart {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 31;
+    width: min(420px, 100%);
+    background: var(--bg-2); border-left: 1px solid var(--line);
+    display: flex; flex-direction: column;
+    transform: translateX(100%); transition: transform .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .cart.show { transform: none; }
+  .cart-head { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--line); }
+  .cart-head h3 { font-family: "Russo One", sans-serif; font-size: 24px; }
+  .icon-btn { background: var(--card); border: 1px solid var(--line); color: var(--text); width: 40px; height: 40px; border-radius: 12px; font-size: 20px; cursor: pointer; }
+  .icon-btn:hover { border-color: var(--fire); }
+  .cart-list { flex: 1; overflow-y: auto; padding: 8px 20px; }
+  .cart-empty { color: var(--muted); text-align: center; padding: 48px 0; }
+  .ci { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .ci-name { flex: 1; }
+  .ci-name b { display: block; }
+  .ci-name small { color: var(--muted); }
+  .qty { display: flex; align-items: center; gap: 8px; }
+  .qty button { width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-size: 16px; cursor: pointer; }
+  .qty button:hover { border-color: var(--fire); }
+  .ci-sum { width: 72px; text-align: right; font-weight: 800; color: var(--fire-2); }
+  .cart-foot { padding: 20px; border-top: 1px solid var(--line); display: grid; gap: 12px; }
+  .total { display: flex; justify-content: space-between; font-size: 20px; font-weight: 800; }
+  .total span:last-child { color: var(--fire-2); font-family: "Russo One", sans-serif; }
+  .cart-foot .btn { text-align: center; }
+  .clear { background: none; border: 0; color: var(--muted); font: 600 14px "Manrope", sans-serif; cursor: pointer; text-decoration: underline; }
+
+  .toast {
+    position: fixed; top: 80px; left: 50%; z-index: 40;
+    transform: translate(-50%, -20px); opacity: 0;
+    background: var(--card); border: 1px solid var(--fire); color: var(--text);
+    padding: 10px 18px; border-radius: 12px; font-weight: 600;
+    transition: opacity .25s, transform .25s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  footer a { color: var(--fire-2); }
+  footer a:hover { text-decoration: underline; }
+  section[id], footer[id] { scroll-margin-top: 64px; }
+
+  /* ---------- Подвал ---------- */
+  footer { padding: 48px 0; color: var(--muted); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; }
+  footer b { color: var(--text); display: block; margin-bottom: 4px; }
+
+  @media (max-width: 900px) {
+    .hero .wrap { grid-template-columns: 1fr; gap: 36px; }
+    .shaurma-box { max-width: 440px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    header .wrap { height: auto; flex-wrap: wrap; gap: 6px 12px; padding-top: 10px; padding-bottom: 10px; }
+    .lang { margin-left: auto; }
+    nav { order: 3; width: 100%; margin-left: 0; gap: 18px; font-size: 14px; overflow-x: auto; }
+    section[id], footer[id] { scroll-margin-top: 90px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shaurma, .shaurma img, .reveal { transition: none; }
+    .shaurma::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a href="#" class="logo">Шаурма <span>у Арсена</span></a>
+    <nav>
+      <a href="#menu" data-i18n="navMenu">Меню</a>
+      <a href="#sauces" data-i18n="navSauces">Соусы</a>
+      <a href="#drinks" data-i18n="navDrinks">Напитки</a>
+      <a href="#contacts" data-i18n="navContacts">Контакты</a>
+    </nav>
+    <div class="lang" role="group" aria-label="Язык / Мова">
+      <button type="button" data-lang="ua">UA</button>
+      <button type="button" data-lang="ru">RU</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1 data-i18n="heroTitle">Горячая шаурма <em>с&nbsp;огня</em></h1>
+      <p data-i18n="heroText">Сочное мясо с гриля, свежие овощи и фирменный соус в хрустящем лаваше. Готовим при вас.</p>
+      <a href="#menu" class="btn" data-i18n="heroBtn">Смотреть меню</a>
+    </div>
+    <div class="shaurma-box" id="hero-box">
+      <div class="shaurma" id="hero-shaurma">
+        <img src="img/shaurma.jpg" alt="" id="hero-img">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block alt" id="menu">
+  <div class="wrap">
+    <h2 class="title" data-i18n="menuTitle">Шаурма</h2>
+    <p class="subtitle" data-i18n="menuSub">Выберите размер — цена обновится</p>
+    <div class="grid" id="shaurma-grid"></div>
+  </div>
+</section>
+
+<section class="block" id="sauces">
+  <div class="wrap">
+    <h2 class="title" data-i18n="saucesTitle">Соусы</h2>
+    <p class="subtitle" data-i18n="saucesSub">Добавьте к шаурме или возьмите отдельно</p>
+    <div class="sauces" id="sauces-grid"></div>
+    <p class="note" data-i18n="saucesNote">Один соус на выбор уже входит в шаурму. Дополнительный — по цене из списка.</p>
+  </div>
+</section>
+
+<section class="block alt" id="drinks">
+  <div class="wrap">
+    <h2 class="title" data-i18n="drinksTitle">Напитки</h2>
+    <p class="subtitle" data-i18n="drinksSub">Холодные газировки, айран и наш фирменный компот</p>
+    <div class="grid" id="drinks-grid"></div>
+  </div>
+</section>
+
+<footer id="contacts">
+  <div class="wrap">
+    <div><b>Шаурма у Арсена</b><span data-i18n="slogan">Вкусно, быстро, по-домашнему</span></div>
+    <div><b data-i18n="address">Адрес</b><span data-i18n="addressValue">ул. Примерная, 1</span></div>
+    <div><b data-i18n="hours">Часы работы</b><span data-i18n="hoursValue">Ежедневно 10:00 – 23:00</span></div>
+    <div><b data-i18n="phone">Телефон</b><a href="tel:+380000000000">+38 (000) 000-00-00</a></div>
+  </div>
+</footer>
+
+<button type="button" class="cart-bar" id="cart-bar">
+  <span>🛒 <span id="cart-count">0</span> · <span id="cart-total">0</span> грн</span>
+  <span class="open" data-i18n="cartBtn">Заказ</span>
+</button>
+<div class="overlay" id="overlay"></div>
+<aside class="cart" id="cart">
+  <div class="cart-head">
+    <h3 data-i18n="cartTitle">Ваш заказ</h3>
+    <button type="button" class="icon-btn" id="cart-close">✕</button>
+  </div>
+  <div class="cart-list" id="cart-list"></div>
+  <div class="cart-foot">
+    <div class="total"><span data-i18n="total">Итого</span><span><span id="cart-sum">0</span> грн</span></div>
+    <a class="btn" href="tel:+380000000000" data-i18n="callOrder">📞 Позвонить и заказать</a>
+    <button type="button" class="clear" id="cart-clear" data-i18n="clear">Очистить заказ</button>
+  </div>
+</aside>
+<div class="toast" id="toast"></div>
+
+<script>
+  // ====== Тексты интерфейса на двух языках ======
+  const T = {
+    ru: {
+      title: "Шаурма у Арсена",
+      navMenu: "Меню", navSauces: "Соусы", navDrinks: "Напитки", navContacts: "Контакты",
+      heroTitle: "Горячая шаурма <em>с&nbsp;огня</em>",
+      heroText: "Сочное мясо с гриля, свежие овощи и фирменный соус в хрустящем лаваше. Готовим при вас.",
+      heroBtn: "Смотреть меню",
+      heroAlt: "Шаурма с телятиной, помидорами и соусом",
+      menuTitle: "Шаурма", menuSub: "Выберите размер — цена обновится",
+      saucesTitle: "Соусы", saucesSub: "Добавьте к шаурме или возьмите отдельно",
+      saucesNote: "Один соус на выбор уже входит в шаурму. Дополнительный — по цене из списка.",
+      drinksTitle: "Напитки", drinksSub: "Холодные газировки, айран и наш фирменный компот",
+      slogan: "Вкусно, быстро, по-домашнему",
+      address: "Адрес", addressValue: "ул. Примерная, 1",
+      hours: "Часы работы", hoursValue: "Ежедневно 10:00 – 23:00",
+      phone: "Телефон",
+      cartBtn: "Заказ", cartTitle: "Ваш заказ", total: "Итого",
+      callOrder: "📞 Позвонить и заказать", clear: "Очистить заказ",
+      close: "Закрыть", empty: "Заказ пока пуст", inCart: "в заказе",
+      add: "В заказ", addTitle: "Добавить в заказ",
+      minus: "Убрать одну", plus: "Добавить ещё", sauce: "Соус",
+      sizes: ["Стандарт", "Большая", "XXL"], g: "г",
+    },
+    ua: {
+      title: "Шаурма у Арсена",
+      navMenu: "Меню", navSauces: "Соуси", navDrinks: "Напої", navContacts: "Контакти",
+      heroTitle: "Гаряча шаурма <em>з&nbsp;вогню</em>",
+      heroText: "Соковите м'ясо з грилю, свіжі овочі та фірмовий соус у хрусткому лаваші. Готуємо при вас.",
+      heroBtn: "Дивитися меню",
+      heroAlt: "Шаурма з телятиною, помідорами та соусом",
+      menuTitle: "Шаурма", menuSub: "Оберіть розмір — ціна оновиться",
+      saucesTitle: "Соуси", saucesSub: "Додайте до шаурми або візьміть окремо",
+      saucesNote: "Один соус на вибір уже входить у шаурму. Додатковий — за ціною зі списку.",
+      drinksTitle: "Напої", drinksSub: "Холодні газовані напої, айран і наш фірмовий компот",
+      slogan: "Смачно, швидко, по-домашньому",
+      address: "Адреса", addressValue: "вул. Прикладна, 1",
+      hours: "Години роботи", hoursValue: "Щодня 10:00 – 23:00",
+      phone: "Телефон",
+      cartBtn: "Замовлення", cartTitle: "Ваше замовлення", total: "Разом",
+      callOrder: "📞 Зателефонувати й замовити", clear: "Очистити замовлення",
+      close: "Закрити", empty: "Замовлення поки порожнє", inCart: "у замовленні",
+      add: "Замовити", addTitle: "Додати до замовлення",
+      minus: "Прибрати одну", plus: "Додати ще", sauce: "Соус",
+      sizes: ["Стандарт", "Велика", "XXL"], g: "г",
+    },
+  };
+
+  // ====== Данные меню (цены меняйте здесь) ======
+  const SHAURMA_SIZES = [
+    { grams: 300, add: 0 },
+    { grams: 400, add: 40 },
+    { grams: 550, add: 80 },
+  ];
+
+  const SHAURMA = [
+    { img: "veal", base: 140,
+      name: { ru: "С телятиной", ua: "З телятиною" },
+      desc: { ru: "Нежная телятина с гриля, помидоры, огурцы, лук и чесночный соус.", ua: "Ніжна телятина з грилю, помідори, огірки, цибуля та часниковий соус." } },
+    { img: "chicken", base: 140,
+      name: { ru: "С курицей", ua: "З куркою" },
+      desc: { ru: "Сочное куриное филе, свежие овощи и фирменный белый соус.", ua: "Соковите куряче філе, свіжі овочі та фірмовий білий соус." } },
+    { img: "pork", base: 130,
+      name: { ru: "Со свининой", ua: "Зі свининою" },
+      desc: { ru: "Пряная свинина, хрустящая капуста, помидоры и острый соус.", ua: "Пряна свинина, хрустка капуста, помідори та гострий соус." },
+      tag: { ru: "Выгодно", ua: "Вигідно" } },
+  ];
+
+  const SAUCES = [
+    { img: "s-garlic",  price: 15, name: { ru: "Чесночный", ua: "Часниковий" },  desc: { ru: "Классика шаурмы", ua: "Класика шаурми" } },
+    { img: "s-cheese",  price: 20, name: { ru: "Сырный", ua: "Сирний" },         desc: { ru: "Нежный, сливочный", ua: "Ніжний, вершковий" } },
+    { img: "s-bbq",     price: 20, name: { ru: "Барбекю", ua: "Барбекю" },       desc: { ru: "Копчёный, сладковатый", ua: "Копчений, солодкуватий" } },
+    { img: "s-hot",     price: 15, name: { ru: "Острый", ua: "Гострий" },        desc: { ru: "Чили и перец", ua: "Чилі та перець" } },
+    { img: "s-ketchup", price: 10, name: { ru: "Кетчуп", ua: "Кетчуп" },         desc: { ru: "Томатный", ua: "Томатний" } },
+    { img: "s-mustard", price: 15, name: { ru: "Горчичный", ua: "Гірчичний" },   desc: { ru: "С мёдом", ua: "З медом" } },
+    { img: "s-arsen",   price: 25, name: { ru: "Фирменный от Арсена", ua: "Фірмовий від Арсена" }, desc: { ru: "Секретный рецепт", ua: "Секретний рецепт" } },
+  ];
+
+  const DRINKS = [
+    { img: "cola",   name: { ru: "Coca-Cola", ua: "Coca-Cola" }, desc: { ru: "Классическая, со льдом", ua: "Класична, з льодом" },
+      sizes: [{ name: "0,5 л", price: 35 }, { name: "1 л", price: 55 }] },
+    { img: "sprite", name: { ru: "Sprite", ua: "Sprite" }, desc: { ru: "Лимон и лайм", ua: "Лимон і лайм" },
+      sizes: [{ name: "0,5 л", price: 35 }, { name: "1 л", price: 55 }] },
+    { img: "fanta",  name: { ru: "Fanta", ua: "Fanta" }, desc: { ru: "Апельсиновая", ua: "Апельсинова" },
+      sizes: [{ name: "0,5 л", price: 35 }, { name: "1 л", price: 55 }] },
+    { img: "ayran",  name: { ru: "Айран", ua: "Айран" }, desc: { ru: "Освежающий, идеально к шаурме", ua: "Освіжаючий, ідеально до шаурми" },
+      sizes: [{ name: "0,3 л", price: 30 }, { name: "0,5 л", price: 45 }] },
+    { img: "compote", name: { ru: "Фирменный компот", ua: "Фірмовий компот" },
+      desc: { ru: "Домашний, из ягод и сухофруктов по рецепту Арсена", ua: "Домашній, з ягід і сухофруктів за рецептом Арсена" },
+      sizes: [{ name: "0,3 л", price: 30 }, { name: "0,5 л", price: 40 }, { name: "1 л", price: 70 }],
+      tag: { ru: "Фирменный", ua: "Фірмовий" } },
+  ];
+
+  // ====== Язык ======
+  const $ = id => document.getElementById(id);
+  let lang;
+  try { lang = localStorage.getItem("arsen-lang"); } catch (e) {}
+  if (lang !== "ru" && lang !== "ua") lang = (navigator.language || "").startsWith("uk") ? "ua" : "ru";
+  const t = key => T[lang][key];
+
+  // Позиции меню по коду: "sh:0:2" — шаурма №0 размер №2, "dr:1:0" — напиток, "sc:3" — соус
+  function lookup(id) {
+    const [kind, a, b] = id.split(":");
+    if (kind === "sh") {
+      const it = SHAURMA[a], s = SHAURMA_SIZES[b];
+      return it && s && { name: it.name[lang], size: t("sizes")[b], price: it.base + s.add };
+    }
+    if (kind === "dr") {
+      const it = DRINKS[a], s = it && it.sizes[b];
+      return s && { name: it.name[lang], size: s.name, price: s.price };
+    }
+    if (kind === "sc") {
+      const it = SAUCES[a];
+      return it && { name: `${t("sauce")} ${it.name[lang].toLowerCase()}`, size: "", price: it.price };
+    }
+  }
+
+  // ====== Корзина ======
+  let cart = [];
+  try { cart = JSON.parse(localStorage.getItem("arsen-cart-v2")) || []; } catch (e) { cart = []; }
+  cart = cart.filter(i => lookup(i.id));
+
+  function saveCart() { try { localStorage.setItem("arsen-cart-v2", JSON.stringify(cart)); } catch (e) {} }
+
+  function addToCart(id) {
+    const found = cart.find(i => i.id === id);
+    if (found) found.qty++; else cart.push({ id, qty: 1 });
+    renderCart();
+    const it = lookup(id);
+    showToast(`✓ ${it.name}${it.size ? " (" + it.size + ")" : ""} — ${t("inCart")}`);
+    const bar = $("cart-bar");
+    bar.classList.remove("bump"); void bar.offsetWidth; bar.classList.add("bump");
+  }
+
+  function changeQty(id, d) {
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+    item.qty += d;
+    if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+    renderCart();
+  }
+
+  function renderCart() {
+    const rows = cart.map(i => ({ ...i, ...lookup(i.id) }));
+    const count = rows.reduce((a, i) => a + i.qty, 0);
+    const sum = rows.reduce((a, i) => a + i.qty * i.price, 0);
+    $("cart-count").textContent = count;
+    $("cart-total").textContent = sum;
+    $("cart-sum").textContent = sum;
+    $("cart-bar").classList.toggle("show", count > 0);
+    $("cart-list").innerHTML = rows.length
+      ? rows.map(i => `
+        <div class="ci">
+          <div class="ci-name"><b>${i.name}</b><small>${i.size ? i.size + " · " : ""}${i.price} грн</small></div>
+          <div class="qty">
+            <button type="button" data-id="${i.id}" data-d="-1" aria-label="${t("minus")}">−</button>
+            <span>${i.qty}</span>
+            <button type="button" data-id="${i.id}" data-d="1" aria-label="${t("plus")}">+</button>
+          </div>
+          <div class="ci-sum">${i.qty * i.price} грн</div>
+        </div>`).join("")
+      : `<div class="cart-empty">${t("empty")}</div>`;
+    if (!count) closeCart();
+    saveCart();
+  }
+
+  $("cart-list").addEventListener("click", e => {
+    const b = e.target.closest("button[data-id]");
+    if (b) changeQty(b.dataset.id, +b.dataset.d);
+  });
+
+  function openCart() { $("cart").classList.add("show"); $("overlay").classList.add("show"); }
+  function closeCart() { $("cart").classList.remove("show"); $("overlay").classList.remove("show"); }
+  $("cart-bar").addEventListener("click", openCart);
+  $("cart-close").addEventListener("click", closeCart);
+  $("overlay").addEventListener("click", closeCart);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeCart(); });
+  $("cart-clear").addEventListener("click", () => { cart = []; renderCart(); });
+
+  let toastTimer;
+  function showToast(text) {
+    const el = $("toast");
+    el.textContent = text;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 1600);
+  }
+
+  // ====== Отрисовка карточек ======
+  function card({ img, name, desc, tag, sizes, idOf }) {
+    const el = document.createElement("article");
+    el.className = "card reveal";
+    el.innerHTML = `
+      <div class="photo"><img src="img/${img}.jpg" alt="${name}" loading="lazy"></div>
+      <h3>${name}</h3>
+      <p class="desc">${desc}</p>
+      <div class="sizes">
+        ${sizes.map((s, i) => `<button type="button" class="${i === 0 ? "active" : ""}" data-i="${i}">${s.name}${s.note ? `<small>${s.note}</small>` : ""}</button>`).join("")}
+      </div>
+      <div class="price-row">
+        <div class="price"><span class="num">${sizes[0].price}</span><span class="rub">грн</span></div>
+        <button type="button" class="add">${t("add")}</button>
+      </div>
+      ${tag ? `<span class="tag">${tag}</span>` : ""}`;
+    const num = el.querySelector(".num");
+    let current = 0;
+    el.querySelectorAll(".sizes button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        el.querySelectorAll(".sizes button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        current = +btn.dataset.i;
+        num.textContent = sizes[current].price;
+      });
+    });
+    el.querySelector(".add").addEventListener("click", () => addToCart(idOf(current)));
+    return el;
+  }
+
+  function renderMenu() {
+    const sh = $("shaurma-grid"), sc = $("sauces-grid"), dr = $("drinks-grid");
+    sh.innerHTML = sc.innerHTML = dr.innerHTML = "";
+
+    SHAURMA.forEach((item, n) => {
+      const sizes = SHAURMA_SIZES.map((s, i) => ({ name: t("sizes")[i], note: `${s.grams} ${t("g")}`, price: item.base + s.add }));
+      sh.appendChild(card({ img: item.img, name: item.name[lang], desc: item.desc[lang], tag: item.tag && item.tag[lang], sizes, idOf: i => `sh:${n}:${i}` }));
+    });
+
+    SAUCES.forEach((s, n) => {
+      sc.insertAdjacentHTML("beforeend", `
+        <button type="button" class="sauce reveal" title="${t("addTitle")}">
+          <img class="dot" src="img/${s.img}.jpg" alt="${s.name[lang]}" loading="lazy">
+          <div><h4>${s.name[lang]}</h4><p>${s.desc[lang]}</p></div>
+          <span class="sp">${s.price} грн</span>
+          <span class="plus">+</span>
+        </button>`);
+      sc.lastElementChild.addEventListener("click", () => addToCart(`sc:${n}`));
+    });
+
+    DRINKS.forEach((d, n) => {
+      dr.appendChild(card({ img: d.img, name: d.name[lang], desc: d.desc[lang], tag: d.tag && d.tag[lang], sizes: d.sizes, idOf: i => `dr:${n}:${i}` }));
+    });
+  }
+
+  function applyLang(first) {
+    document.documentElement.lang = lang === "ua" ? "uk" : "ru";
+    document.title = t("title");
+    document.querySelectorAll("[data-i18n]").forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+    $("hero-img").alt = t("heroAlt");
+    $("cart").setAttribute("aria-label", t("cartTitle"));
+    $("cart-close").setAttribute("aria-label", t("close"));
+    document.querySelectorAll(".lang button").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
+    renderMenu();
+    renderCart();
+    if (first) observeReveal();
+    else document.querySelectorAll(".reveal").forEach(el => el.classList.add("is-visible", "done"));
+  }
+
+  document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.lang === lang) return;
+    lang = b.dataset.lang;
+    try { localStorage.setItem("arsen-lang", lang); } catch (e) {}
+    applyLang(false);
+  }));
+
+  // ====== Анимации при прокрутке ======
+  // Шаурма: появляется сверху вниз, а когда уходит с экрана — сбрасывается,
+  // чтобы при возврате анимация проигралась заново.
+  // Следим за обёрткой: само фото скрыто clip-path, и браузер считает его невидимым.
+  const hero = $("hero-shaurma");
+  const heroObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => hero.classList.toggle("is-visible", e.isIntersecting));
+  }, { threshold: 0.25 });
+  heroObserver.observe($("hero-box"));
+
+  // Карточки: плавно выезжают снизу один раз
+  function observeReveal() {
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add("is-visible");
+          revealObserver.unobserve(e.target);
+          // после появления убираем задержку, чтобы наведение и нажатие реагировали сразу
+          setTimeout(() => e.target.classList.add("done"), 1000);
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll(".reveal").forEach((el, i) => {
+      el.style.transitionDelay = (i % 3) * 0.1 + "s";
+      revealObserver.observe(el);
+    });
+  }
+
+  applyLang(true);
+</script>
+</body>
+</html>
